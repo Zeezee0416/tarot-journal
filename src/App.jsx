@@ -26,10 +26,10 @@ const CSS = `
   --amethyst: #9b72cf;
   --amethyst-dim: #4a3070;
   --amethyst-bg: rgba(155,114,207,0.1);
-  --silver: #c0b8d8;
-  --text: #e8e0f5;
-  --text-2: #a89cc8;
-  --text-3: #6b5f8a;
+  --silver: #ddd6f0;
+  --text: #f5f0ff;
+  --text-2: #ddd6f0;
+  --text-3: #b8aed4;
   --red: #c0392b;
   --red-bg: rgba(192,57,43,0.15);
   --green: #27ae60;
@@ -40,13 +40,18 @@ const CSS = `
 
 html, body, #root {
   height: 100%;
+  width: 100%;
   background: var(--void);
   color: var(--text);
   font-family: 'Josefin Sans', sans-serif;
-  font-size: 14px;
-  line-height: 1.65;
+  font-size: 16px;
+  line-height: 1.7;
   -webkit-font-smoothing: antialiased;
 }
+
+.app { background: var(--void); }
+.main { background: var(--void); }
+.page { background: var(--void); }
 
 /* ─── SCROLLBAR ─── */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
@@ -209,7 +214,7 @@ html, body, #root {
   outline: none;
   color: var(--text);
   font-family: 'Josefin Sans', sans-serif;
-  font-size: 12px;
+  font-size: 14px;
   letter-spacing: 0.04em;
   width: 100%;
 }
@@ -244,13 +249,13 @@ html, body, #root {
 }
 .page-title {
   font-family: 'Cinzel', serif;
-  font-size: 20px;
+  font-size: 24px;
   color: var(--gold-bright);
   letter-spacing: 0.05em;
 }
 .page-meta {
-  font-size: 11px;
-  color: var(--text-3);
+  font-size: 13px;
+  color: var(--text-2);
   letter-spacing: 0.1em;
   margin-top: 5px;
   font-family: 'Josefin Sans', sans-serif;
@@ -408,10 +413,10 @@ html, body, #root {
 .fg:last-child { margin-bottom: 0; }
 .fl {
   display: block;
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--text-3);
+  color: var(--text-2);
   margin-bottom: 6px;
 }
 .fi, .fs, .fta {
@@ -419,10 +424,10 @@ html, body, #root {
   background: var(--deep);
   border: 1px solid var(--border);
   border-radius: 7px;
-  padding: 9px 12px;
+  padding: 10px 14px;
   color: var(--text);
   font-family: 'Josefin Sans', sans-serif;
-  font-size: 13px;
+  font-size: 15px;
   outline: none;
   transition: border-color 0.18s;
 }
@@ -582,7 +587,7 @@ html, body, #root {
   margin-bottom: 8px;
   letter-spacing: 0.05em;
 }
-.empty-body { font-size: 12px; line-height: 1.8; color: var(--text-3); }
+.empty-body { font-size: 14px; line-height: 1.8; color: var(--text-2); }
 
 /* ─── DIVIDER ─── */
 .divider { height: 1px; background: var(--border); margin: 20px 0; }
