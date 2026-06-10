@@ -575,19 +575,19 @@ html, body, #root {
   color: var(--text-3);
 }
 .empty-glyph {
-  font-size: 44px;
-  margin-bottom: 18px;
+  font-size: 32px;
+  margin-bottom: 14px;
   opacity: 0.25;
   font-family: 'Cinzel', serif;
 }
 .empty-title {
   font-family: 'Cinzel', serif;
-  font-size: 15px;
+  font-size: 13px;
   color: var(--text-2);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   letter-spacing: 0.05em;
 }
-.empty-body { font-size: 16px; line-height: 1.8; color: var(--text-2); }
+.empty-body { font-size: 13px; line-height: 1.7; color: var(--text-3); }
 
 /* ─── DIVIDER ─── */
 .divider { height: 1px; background: var(--border); margin: 20px 0; }
