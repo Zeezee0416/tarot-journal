@@ -1325,15 +1325,15 @@ function Dashboard({ cards, draws, cases, goTo }) {
         </div>
       </div>
 
-      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 28, background: "var(--card)", border: "1px solid var(--border)", borderRadius: 10, padding: "8px 10px" }}>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 28, background: "var(--card)", border: "1px solid var(--border)", borderRadius: 10, padding: "10px 12px" }}>
         {navTabs.map(t => (
           <div key={t.id} onClick={() => goTo(t.id)}
-            style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 12px", borderRadius: 6, cursor: "pointer", border: "1px solid transparent", transition: "all 0.15s", position: "relative" }}
+            style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", borderRadius: 6, cursor: "pointer", border: "1px solid transparent", transition: "all 0.15s", position: "relative" }}
             onMouseEnter={e => { e.currentTarget.style.background = "var(--surface)"; e.currentTarget.style.borderColor = "var(--border-gold)"; }}
             onMouseLeave={e => { e.currentTarget.style.background = ""; e.currentTarget.style.borderColor = "transparent"; }}>
-            <span style={{ fontSize: 13, opacity: 0.7 }}>{t.glyph}</span>
-            <span style={{ fontFamily: "Cinzel, serif", fontSize: 11, color: "var(--gold-bright)", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>{t.label}</span>
-            {t.badge > 0 && <span style={{ background: "var(--amethyst-dim)", color: "var(--amethyst)", fontSize: 9, fontWeight: 600, padding: "0px 5px", borderRadius: 8, lineHeight: "16px" }}>{t.badge}</span>}
+            <span style={{ fontSize: 17, opacity: 0.85 }}>{t.glyph}</span>
+            <span style={{ fontFamily: "Cinzel, serif", fontSize: 16, color: "var(--text)", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>{t.label}</span>
+            {t.badge > 0 && <span style={{ background: "var(--amethyst-dim)", color: "var(--amethyst)", fontSize: 11, fontWeight: 600, padding: "1px 6px", borderRadius: 8, lineHeight: "18px" }}>{t.badge}</span>}
           </div>
         ))}
       </div>
