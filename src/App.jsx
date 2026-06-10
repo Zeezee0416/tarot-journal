@@ -44,8 +44,8 @@ html, body, #root {
   background: var(--void);
   color: var(--text);
   font-family: 'Josefin Sans', sans-serif;
-  font-size: 16px;
-  line-height: 1.7;
+  font-size: 18px;
+  line-height: 1.75;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -99,7 +99,7 @@ html, body, #root {
 }
 .logo-name {
   font-family: 'Cinzel', serif;
-  font-size: 17px;
+  font-size: 19px;
   color: var(--text);
   letter-spacing: 0.06em;
   line-height: 1.2;
@@ -122,7 +122,7 @@ html, body, #root {
   padding: 11px 24px;
   cursor: pointer;
   color: var(--text-2);
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 400;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -190,7 +190,7 @@ html, body, #root {
 .topbar-left { display: flex; align-items: center; gap: 12px; }
 .topbar-page {
   font-family: 'Cinzel', serif;
-  font-size: 12px;
+  font-size: 15px;
   color: var(--text-2);
   letter-spacing: 0.12em;
 }
@@ -214,7 +214,7 @@ html, body, #root {
   outline: none;
   color: var(--text);
   font-family: 'Josefin Sans', sans-serif;
-  font-size: 14px;
+  font-size: 16px;
   letter-spacing: 0.04em;
   width: 100%;
 }
@@ -249,12 +249,12 @@ html, body, #root {
 }
 .page-title {
   font-family: 'Cinzel', serif;
-  font-size: 24px;
+  font-size: 28px;
   color: var(--gold-bright);
   letter-spacing: 0.05em;
 }
 .page-meta {
-  font-size: 13px;
+  font-size: 15px;
   color: var(--text-2);
   letter-spacing: 0.1em;
   margin-top: 5px;
@@ -404,7 +404,7 @@ html, body, #root {
   border-color: var(--red);
 }
 .btn-danger:hover { background: var(--red); color: #fff; }
-.btn-sm { padding: 5px 12px; font-size: 11px; border-radius: 5px; }
+.btn-sm { padding: 6px 14px; font-size: 13px; border-radius: 5px; }
 .btn-icon { padding: 6px 9px; }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
@@ -413,7 +413,7 @@ html, body, #root {
 .fg:last-child { margin-bottom: 0; }
 .fl {
   display: block;
-  font-size: 12px;
+  font-size: 13px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--text-2);
@@ -427,7 +427,7 @@ html, body, #root {
   padding: 10px 14px;
   color: var(--text);
   font-family: 'Josefin Sans', sans-serif;
-  font-size: 15px;
+  font-size: 17px;
   outline: none;
   transition: border-color 0.18s;
 }
@@ -587,7 +587,7 @@ html, body, #root {
   margin-bottom: 8px;
   letter-spacing: 0.05em;
 }
-.empty-body { font-size: 14px; line-height: 1.8; color: var(--text-2); }
+.empty-body { font-size: 16px; line-height: 1.8; color: var(--text-2); }
 
 /* ─── DIVIDER ─── */
 .divider { height: 1px; background: var(--border); margin: 20px 0; }
@@ -619,10 +619,21 @@ html, body, #root {
   gap: 10px;
   margin-bottom: 10px;
 }
-.bar-label { font-size: 11px; color: var(--text-2); width: 72px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-label { font-size: 13px; color: var(--text-2); width: 72px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .bar-track { flex: 1; height: 7px; background: var(--deep); border-radius: 4px; overflow: hidden; }
 .bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
-.bar-count { font-size: 11px; color: var(--text-3); width: 26px; text-align: right; flex-shrink: 0; }
+.bar-count { font-size: 13px; color: var(--text-3); width: 26px; text-align: right; flex-shrink: 0; }
+
+
+/* ─── 正文可读性 ─── */
+.list-body p { font-size: 16px !important; line-height: 1.8 !important; color: var(--text-2) !important; }
+.list-body > div { font-size: 15px; }
+.mbody p { font-size: 16px; line-height: 1.8; color: var(--text-2); }
+.modal .mbody [style*="font-size: 12"] { font-size: 15px !important; }
+.modal .mbody [style*="font-size: 10"] { font-size: 13px !important; }
+.btn { font-size: 15px; }
+.stat-val { font-size: 34px !important; }
+.sec-head { font-size: 13px !important; }
 
 /* ─── RESPONSIVE ─── */
 @media (max-width: 768px) {
@@ -690,9 +701,9 @@ function CardMeaningPanel({ card, orientation }) {
   const label = isUp ? "正位牌义" : "逆位牌义";
   return (
     <div style={{ background: "var(--deep)", borderRadius: 8, padding: "12px 14px", borderLeft: `3px solid ${color}`, marginTop: 12 }}>
-      <div style={{ fontSize: 10, color, marginBottom: 6, fontWeight: 600, letterSpacing: "0.1em" }}>{label}</div>
+      <div style={{ fontSize: 13, color, marginBottom: 6, fontWeight: 600, letterSpacing: "0.1em" }}>{label}</div>
       {kw && <div style={{ fontSize: 11, color, marginBottom: meaning ? 6 : 0 }}>{kw}</div>}
-      {meaning && <p style={{ fontSize: 12, color: "var(--text-2)", lineHeight: 1.75, margin: 0 }}>{meaning}</p>}
+      {meaning && <p style={{ fontSize: 16, color: "var(--text-2)", lineHeight: 1.75, margin: 0 }}>{meaning}</p>}
     </div>
   );
 }
@@ -761,8 +772,8 @@ function CardPicker({ cards, selected = [], onChange }) {
                 style={{ padding: "8px 12px", display: "flex", alignItems: "center", gap: 8, cursor: "pointer", borderBottom: "1px solid var(--border)", background: on ? "rgba(155,114,207,0.08)" : "transparent", transition: "background 0.12s" }}
                 onClick={() => onChange(on ? selected.filter(x => x !== c.id) : [...selected, c.id])}>
                 <input type="checkbox" checked={on} onChange={() => {}} style={{ accentColor: "var(--gold)", width: 14, height: 14 }} />
-                <span style={{ fontSize: 12, color: "var(--text)" }}>{c.name}</span>
-                {c.enName && <span style={{ fontSize: 10, color: "var(--text-3)" }}>{c.enName}</span>}
+                <span style={{ fontSize: 16, color: "var(--text)" }}>{c.name}</span>
+                {c.enName && <span style={{ fontSize: 13, color: "var(--text-2)" }}>{c.enName}</span>}
                 <span className="tag tag-gray" style={{ marginLeft: "auto" }}>{c.suit}</span>
               </div>
             );
@@ -785,7 +796,7 @@ function Confirm({ msg, onOk, onCancel }) {
         <div className="mbody" style={{ textAlign: "center", padding: "28px 24px" }}>
           <div style={{ fontSize: 32, marginBottom: 14, opacity: 0.6 }}>⚠</div>
           <p style={{ color: "var(--text)", marginBottom: 6, fontSize: 14 }}>{msg}</p>
-          <p style={{ fontSize: 11, color: "var(--text-3)" }}>此操作不可撤销</p>
+          <p style={{ fontSize: 14, color: "var(--text-2)" }}>此操作不可撤销</p>
         </div>
         <div className="mfoot" style={{ justifyContent: "center" }}>
           <button className="btn btn-ghost" onClick={onCancel}>取消</button>
@@ -945,8 +956,8 @@ function CardDetail({ card, onEdit, onClose }) {
           </div>
           {(card.uprightKw || card.reversedKw) && (
             <div className="fgrid fgrid-2 fg">
-              {card.uprightKw && <div><span style={{ fontSize: 10, color: "var(--text-3)", display: "block", marginBottom: 4 }}>正位关键词</span><span style={{ color: "#6fcf97", fontSize: 13 }}>{card.uprightKw}</span></div>}
-              {card.reversedKw && <div><span style={{ fontSize: 10, color: "var(--text-3)", display: "block", marginBottom: 4 }}>逆位关键词</span><span style={{ color: "#e07070", fontSize: 13 }}>{card.reversedKw}</span></div>}
+              {card.uprightKw && <div><span style={{ fontSize: 13, color: "var(--text-2)", display: "block", marginBottom: 4 }}>正位关键词</span><span style={{ color: "#6fcf97", fontSize: 13 }}>{card.uprightKw}</span></div>}
+              {card.reversedKw && <div><span style={{ fontSize: 13, color: "var(--text-2)", display: "block", marginBottom: 4 }}>逆位关键词</span><span style={{ color: "#e07070", fontSize: 13 }}>{card.reversedKw}</span></div>}
             </div>
           )}
           {(card.uprightMeaning || card.reversedMeaning) && (
@@ -955,7 +966,7 @@ function CardDetail({ card, onEdit, onClose }) {
                 card[k] ? (
                   <div key={k} style={{ background: "var(--deep)", borderRadius: 8, padding: "12px 14px", borderLeft: `3px solid ${c}` }}>
                     <div style={{ fontSize: 10, color: c, marginBottom: 6, fontWeight: 600, letterSpacing: "0.1em" }}>{l}</div>
-                    <p style={{ fontSize: 12, color: "var(--text-2)", lineHeight: 1.75 }}>{card[k]}</p>
+                    <p style={{ fontSize: 16, color: "var(--text-2)", lineHeight: 1.75 }}>{card[k]}</p>
                   </div>
                 ) : null
               )}
@@ -969,7 +980,7 @@ function CardDetail({ card, onEdit, onClose }) {
                   card[k] ? (
                     <div key={k} style={{ background: "var(--deep)", borderRadius: 8, padding: "10px 12px" }}>
                       <div style={{ fontSize: 10, color: "var(--gold-dim)", marginBottom: 5, fontWeight: 600 }}>{l}</div>
-                      <p style={{ fontSize: 12, color: "var(--text-2)", lineHeight: 1.7 }}>{card[k]}</p>
+                      <p style={{ fontSize: 16, color: "var(--text-2)", lineHeight: 1.7 }}>{card[k]}</p>
                     </div>
                   ) : null
                 )}
@@ -982,8 +993,8 @@ function CardDetail({ card, onEdit, onClose }) {
               {[["authorNote","个人理解"],["authorRealExpr","现实表现"],["authorMistakes","误判提醒"]].map(([k,l]) =>
                 card[k] ? (
                   <div key={k} style={{ marginBottom: 12 }}>
-                    <div style={{ fontSize: 10, color: "var(--text-3)", marginBottom: 4 }}>{l}</div>
-                    <p style={{ fontSize: 12, color: "var(--text-2)", lineHeight: 1.75 }}>{card[k]}</p>
+                    <div style={{ fontSize: 13, color: "var(--text-2)", marginBottom: 4 }}>{l}</div>
+                    <p style={{ fontSize: 16, color: "var(--text-2)", lineHeight: 1.75 }}>{card[k]}</p>
                   </div>
                 ) : null
               )}
@@ -995,8 +1006,8 @@ function CardDetail({ card, onEdit, onClose }) {
               {[["myNote","个人理解"],["realExpr","现实表现"],["mistakes","误判提醒"]].map(([k,l]) =>
                 card[k] ? (
                   <div key={k} style={{ marginBottom: 12 }}>
-                    <div style={{ fontSize: 10, color: "var(--text-3)", marginBottom: 4 }}>{l}</div>
-                    <p style={{ fontSize: 12, color: "var(--text-2)", lineHeight: 1.75 }}>{card[k]}</p>
+                    <div style={{ fontSize: 13, color: "var(--text-2)", marginBottom: 4 }}>{l}</div>
+                    <p style={{ fontSize: 16, color: "var(--text-2)", lineHeight: 1.75 }}>{card[k]}</p>
                   </div>
                 ) : null
               )}
@@ -1056,7 +1067,7 @@ function DrawForm({ init, cards, onSave, onClose }) {
             {!drawn ? (
               <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
                 <button className="btn btn-gold" onClick={drawRandom} disabled={!cards.length}>✦ 随机抽牌</button>
-                {!cards.length && <span style={{ fontSize: 11, color: "var(--text-3)" }}>请先在牌义库中录入牌</span>}
+                {!cards.length && <span style={{ fontSize: 14, color: "var(--text-2)" }}>请先在牌义库中录入牌</span>}
                 <select className="fs" style={{ width: 160 }} value={f.cardId}
                   onChange={e => { set("cardId", e.target.value); if (e.target.value) setDrawn(true); }}>
                   <option value="">手动选择...</option>
@@ -1215,22 +1226,22 @@ function ReviewModal({ item, type, cards, onSave, onClose }) {
         </div>
         <div className="mbody">
           <div className="card" style={{ marginBottom: 18, background: "var(--deep)", borderColor: "var(--border-gold)" }}>
-            <div style={{ fontSize: 10, color: "var(--text-3)", marginBottom: 4 }}>{f.date}</div>
+            <div style={{ fontSize: 13, color: "var(--text-2)", marginBottom: 4 }}>{f.date}</div>
             {type === "draw" ? (
               <>
                 <div style={{ fontFamily: "Cinzel, serif", color: "var(--gold-bright)", marginBottom: 6, fontSize: 14 }}>
                   {cardName} · <span className={`ori ${f.orientation === "正位" ? "ori-up" : "ori-rv"}`}>{f.orientation}</span>
                 </div>
-                {f.question && <p style={{ fontSize: 12, color: "var(--text-2)" }}>问题：{f.question}</p>}
-                {f.interpretation && <p style={{ fontSize: 12, color: "var(--text-2)", marginTop: 4 }}>解读：{f.interpretation}</p>}
+                {f.question && <p style={{ fontSize: 16, color: "var(--text-2)" }}>问题：{f.question}</p>}
+                {f.interpretation && <p style={{ fontSize: 16, color: "var(--text-2)", marginTop: 4 }}>解读：{f.interpretation}</p>}
               </>
             ) : (
               <>
                 <div style={{ fontFamily: "Cinzel, serif", color: "var(--gold-bright)", marginBottom: 6, fontSize: 14 }}>
                   {f.clientCode} <span className="tag tag-amethyst">{f.qType}</span>
                 </div>
-                {f.theme && <p style={{ fontSize: 12, color: "var(--text-2)" }}>主题：{f.theme}</p>}
-                {f.interpretation && <p style={{ fontSize: 12, color: "var(--text-2)", marginTop: 4 }}>解读：{f.interpretation}</p>}
+                {f.theme && <p style={{ fontSize: 16, color: "var(--text-2)" }}>主题：{f.theme}</p>}
+                {f.interpretation && <p style={{ fontSize: 16, color: "var(--text-2)", marginTop: 4 }}>解读：{f.interpretation}</p>}
               </>
             )}
           </div>
@@ -1352,13 +1363,13 @@ function Dashboard({ cards, draws, cases, goTo }) {
             </div>
             <div className="list-body">
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
-                <span style={{ fontFamily: "Cinzel, serif", fontSize: 13, color: "var(--gold-bright)" }}>
+                <span style={{ fontFamily: "Cinzel, serif", fontSize: 16, color: "var(--gold-bright)" }}>
                   {item._t === "draw" ? (card?.name || "未知牌") : item.clientCode}
                 </span>
                 {item._t === "draw" && <span className={`ori ${item.orientation === "正位" ? "ori-up" : "ori-rv"}`}>{item.orientation}</span>}
                 {item._t === "case" && <span className="tag tag-amethyst">{item.qType}</span>}
               </div>
-              <div style={{ fontSize: 11, color: "var(--text-3)" }}>
+              <div style={{ fontSize: 14, color: "var(--text-2)" }}>
                 {item.date}{item._t === "draw" && item.question ? " · " + item.question : ""}{item._t === "case" && item.theme ? " · " + item.theme : ""}
               </div>
             </div>
@@ -1421,7 +1432,7 @@ function Library({ cards, setCards }) {
                 <CardImage card={c} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontFamily: "Cinzel, serif", fontSize: 14, color: "var(--text)", marginBottom: 3 }}>{c.name}</div>
-                  {c.enName && <div style={{ fontSize: 10, color: "var(--text-3)", marginBottom: 6, fontStyle: "italic", fontFamily: "EB Garamond, serif" }}>{c.enName}</div>}
+                  {c.enName && <div style={{ fontSize: 13, color: "var(--text-2)", marginBottom: 6, fontStyle: "italic", fontFamily: "EB Garamond, serif" }}>{c.enName}</div>}
                   <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginBottom: 6 }}>
                     <span className="tag tag-gold">{c.suit}</span>
                   </div>
@@ -1494,13 +1505,13 @@ function Daily({ cards, draws, setDraws }) {
             </div>
             <div className="list-body">
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, flexWrap: "wrap" }}>
-                <span style={{ fontFamily: "Cinzel, serif", fontSize: 13, color: "var(--gold-bright)" }}>{card?.name || "未知牌"}</span>
+                <span style={{ fontFamily: "Cinzel, serif", fontSize: 16, color: "var(--gold-bright)" }}>{card?.name || "未知牌"}</span>
                 <span className={`ori ${d.orientation === "正位" ? "ori-up" : "ori-rv"}`}>{d.orientation}</span>
                 {d.needReview && !d.reviewed && <span className="tag tag-orange">待复盘</span>}
                 {d.reviewed && <span className="tag tag-green">已复盘</span>}
               </div>
-              <div style={{ fontSize: 11, color: "var(--text-3)", marginBottom: 4 }}>{d.date}{d.question ? " · " + d.question : ""}</div>
-              {d.interpretation && <p style={{ fontSize: 12, color: "var(--text-2)", lineHeight: 1.65 }}>{d.interpretation}</p>}
+              <div style={{ fontSize: 14, color: "var(--text-2)", marginBottom: 4 }}>{d.date}{d.question ? " · " + d.question : ""}</div>
+              {d.interpretation && <p style={{ fontSize: 16, color: "var(--text-2)", lineHeight: 1.65 }}>{d.interpretation}</p>}
               <div style={{ marginTop: 6, display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
                 {d.accuracy && d.accuracy !== "待验证" && <span className={`accuracy-badge ${ACC_CLS[d.accuracy]}`}>{d.accuracy}</span>}
                 {d.score > 0 && <Stars value={d.score} readOnly />}
@@ -1567,12 +1578,12 @@ function Cases({ cards, cases, setCases }) {
             </div>
             <div className="list-body">
               <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 4, flexWrap: "wrap" }}>
-                <span style={{ fontFamily: "Cinzel, serif", fontSize: 13, color: "var(--gold-bright)" }}>{c.clientCode}</span>
+                <span style={{ fontFamily: "Cinzel, serif", fontSize: 16, color: "var(--gold-bright)" }}>{c.clientCode}</span>
                 <span className="tag tag-amethyst">{c.qType}</span>
                 <span className={`accuracy-badge ${ACC_CLS[c.accuracy]}`}>{c.accuracy}</span>
                 {c.reviewed && <span className="tag tag-green">已复盘</span>}
               </div>
-              <div style={{ fontSize: 11, color: "var(--text-3)", marginBottom: 4 }}>{c.date}{c.theme ? " · " + c.theme : ""}{c.spread ? " · " + c.spread : ""}</div>
+              <div style={{ fontSize: 14, color: "var(--text-2)", marginBottom: 4 }}>{c.date}{c.theme ? " · " + c.theme : ""}{c.spread ? " · " + c.spread : ""}</div>
               {cCards.length > 0 && (
                 <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginBottom: 4 }}>
                   {cCards.map(x => <span key={x.id} className="tag tag-gold">{x.name}</span>)}
@@ -1622,7 +1633,7 @@ function Review({ cards, draws, setDraws, cases, setCases }) {
             <span style={{ fontFamily: "Cinzel, serif", color: "var(--gold-bright)", fontSize: 13 }}>{card?.name || "未知"}</span>
             <span className={`ori ${d.orientation === "正位" ? "ori-up" : "ori-rv"}`}>{d.orientation}</span>
           </div>
-          <div style={{ fontSize: 11, color: "var(--text-3)", marginBottom: 3 }}>{d.date}{d.question ? " · " + d.question : ""}</div>
+          <div style={{ fontSize: 14, color: "var(--text-2)", marginBottom: 3 }}>{d.date}{d.question ? " · " + d.question : ""}</div>
           {d.reviewed && d.reviewNote && <p style={{ fontSize: 11, color: "var(--text-2)" }}>{d.reviewNote}</p>}
           {d.reviewed && d.accuracy && <span className={`accuracy-badge ${ACC_CLS[d.accuracy]}`} style={{ marginTop: 6, display: "inline-block" }}>{d.accuracy}</span>}
         </div>
@@ -1642,7 +1653,7 @@ function Review({ cards, draws, setDraws, cases, setCases }) {
           <span className="tag tag-amethyst">{c.qType}</span>
           <span className={`accuracy-badge ${ACC_CLS[c.accuracy]}`}>{c.accuracy}</span>
         </div>
-        <div style={{ fontSize: 11, color: "var(--text-3)" }}>{c.date}{c.theme ? " · " + c.theme : ""}</div>
+        <div style={{ fontSize: 14, color: "var(--text-2)" }}>{c.date}{c.theme ? " · " + c.theme : ""}</div>
         {c.reviewed && c.score > 0 && <div style={{ marginTop: 4 }}><Stars value={c.score} readOnly /></div>}
       </div>
       <button className="btn btn-ghost btn-sm" onClick={() => setRev({ item: c, type: "case" })}>{c.reviewed ? "查看" : "复盘"}</button>
@@ -1744,14 +1755,14 @@ function Search({ cards, draws, cases, initialQuery = "" }) {
         <div className="empty"><div className="empty-glyph">⊗</div><div className="empty-title">没有找到相关内容</div></div>
       ) : (
         <>
-          <div style={{ fontSize: 11, color: "var(--text-3)", marginBottom: 16, letterSpacing: "0.1em" }}>找到 {total} 条结果</div>
+          <div style={{ fontSize: 14, color: "var(--text-2)", marginBottom: 16, letterSpacing: "0.1em" }}>找到 {total} 条结果</div>
           {rCards.length > 0 && (
             <><div className="sec-head">牌义库 ({rCards.length})</div>
             {rCards.map(c => (
               <div key={c.id} className="list-row">
                 <div className="card-chip"><div className="card-chip-name">{c.name}</div></div>
                 <div className="list-body">
-                  <div style={{ fontFamily: "Cinzel, serif", color: "var(--gold-bright)", marginBottom: 3, fontSize: 13 }}>{c.name} {c.enName && <span style={{ fontSize: 11, color: "var(--text-3)", fontStyle: "italic" }}>{c.enName}</span>}</div>
+                  <div style={{ fontFamily: "Cinzel, serif", color: "var(--gold-bright)", marginBottom: 3, fontSize: 13 }}>{c.name} {c.enName && <span style={{ fontSize: 14, color: "var(--text-2)", fontStyle: "italic" }}>{c.enName}</span>}</div>
                   <div style={{ display: "flex", gap: 4 }}><span className="tag tag-gold">{c.suit}</span><TagList tags={c.tags} /></div>
                 </div>
               </div>
@@ -1768,7 +1779,7 @@ function Search({ cards, draws, cases, initialQuery = "" }) {
                       <span style={{ fontFamily: "Cinzel, serif", color: "var(--gold-bright)", fontSize: 13 }}>{card?.name || "未知"}</span>
                       <span className={`ori ${d.orientation === "正位" ? "ori-up" : "ori-rv"}`}>{d.orientation}</span>
                     </div>
-                    <div style={{ fontSize: 11, color: "var(--text-3)" }}>{d.date}{d.question ? " · " + d.question : ""}</div>
+                    <div style={{ fontSize: 14, color: "var(--text-2)" }}>{d.date}{d.question ? " · " + d.question : ""}</div>
                   </div>
                   {d.accuracy && <span className={`accuracy-badge ${ACC_CLS[d.accuracy || "待验证"]}`}>{d.accuracy || "待验证"}</span>}
                 </div>
@@ -1784,7 +1795,7 @@ function Search({ cards, draws, cases, initialQuery = "" }) {
                     <span style={{ fontFamily: "Cinzel, serif", color: "var(--gold-bright)", fontSize: 13 }}>{c.clientCode}</span>
                     <span className="tag tag-amethyst">{c.qType}</span>
                   </div>
-                  <div style={{ fontSize: 11, color: "var(--text-3)" }}>{c.date}{c.theme ? " · " + c.theme : ""}</div>
+                  <div style={{ fontSize: 14, color: "var(--text-2)" }}>{c.date}{c.theme ? " · " + c.theme : ""}</div>
                 </div>
                 <span className={`accuracy-badge ${ACC_CLS[c.accuracy]}`}>{c.accuracy}</span>
               </div>
@@ -1883,7 +1894,7 @@ function Stats({ cards, draws, cases }) {
               <div key={m} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
                 <span style={{ fontSize: 11, color: "var(--gold-bright)", fontFamily: "Cinzel, serif" }}>{v}</span>
                 <div style={{ width: "100%", background: "var(--amethyst-dim)", borderRadius: "4px 4px 0 0", height: `${Math.max((v / maxMonth) * 68, 4)}px`, border: "1px solid var(--amethyst)", borderBottom: "none" }} />
-                <span style={{ fontSize: 10, color: "var(--text-3)" }}>{m.slice(5)}</span>
+                <span style={{ fontSize: 13, color: "var(--text-2)" }}>{m.slice(5)}</span>
               </div>
             ))}
           </div>
@@ -1895,11 +1906,11 @@ function Stats({ cards, draws, cases }) {
           <div className="sec-head">出现次数最多的牌 (Top 10)</div>
           {freq.slice(0, 10).map(({ card: c, n }, i) => (
             <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "9px 0", borderBottom: i < 9 ? "1px solid var(--border)" : "none" }}>
-              <span style={{ fontSize: 11, color: "var(--text-3)", width: 22, flexShrink: 0 }}>#{i + 1}</span>
+              <span style={{ fontSize: 14, color: "var(--text-2)", width: 22, flexShrink: 0 }}>#{i + 1}</span>
               <div className="card-chip" style={{ width: 30, height: 48 }}><div className="card-chip-name" style={{ fontSize: 6 }}>{c.name}</div></div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontFamily: "Cinzel, serif", fontSize: 13, color: "var(--text)" }}>{c.name}</div>
-                {c.enName && <div style={{ fontSize: 10, color: "var(--text-3)" }}>{c.enName}</div>}
+                {c.enName && <div style={{ fontSize: 13, color: "var(--text-2)" }}>{c.enName}</div>}
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <div style={{ width: `${(n / maxFreq) * 70}px`, height: 6, background: "var(--gold-dim)", borderRadius: 3, transition: "width 0.4s" }} />
@@ -2008,7 +2019,7 @@ function AppShell({ cards, draws, cases, setCards, setDraws, setCases, user, sig
             <div className="mhead"><span className="mhead-title">导入本地数据</span></div>
             <div className="mbody" style={{ textAlign: "center", padding: "24px" }}>
               <p style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.8, marginBottom: 8 }}>检测到浏览器中有旧的本地数据（抽牌记录、案例、笔记）。</p>
-              <p style={{ fontSize: 11, color: "var(--text-3)" }}>是否导入到云端账户？</p>
+              <p style={{ fontSize: 14, color: "var(--text-2)" }}>是否导入到云端账户？</p>
             </div>
             <div className="mfoot" style={{ justifyContent: "center" }}>
               <button className="btn btn-ghost" onClick={dismissImport}>跳过</button>
