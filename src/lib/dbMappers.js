@@ -93,6 +93,7 @@ export function rowToCase(row) {
     tags: row.tags || [],
     reviewed: row.reviewed || false,
     reviewNote: row.review_note || '',
+    spreadPhotoUrl: row.spread_photo_url || '',
   };
 }
 
@@ -112,6 +113,7 @@ export function caseToDb(c, userId) {
     tags: c.tags || [],
     reviewed: c.reviewed || false,
     review_note: c.reviewNote || '',
+    spread_photo_url: c.spreadPhotoUrl || '',
     updated_at: new Date().toISOString(),
   };
 }

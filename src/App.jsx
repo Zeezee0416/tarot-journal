@@ -1,7 +1,10 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useAuth } from './context/AuthContext.jsx';
 import { useTarotData } from './hooks/useTarotData.js';
 import AuthPage from './pages/AuthPage.jsx';
+import {
+  uploadSpreadPhoto, deleteSpreadPhoto, getSpreadPhotoUrl, getSpreadPhotoUrls,
+} from './lib/uploadSpreadPhoto.js';
 
 // ═══════════════════════════════════════════════════════════════
 // GLOBAL STYLES
@@ -1125,13 +1128,78 @@ const newCase = () => ({
   id: uid(), clientCode: "", date: today(), theme: "", qType: "感情",
   spread: "", cardIds: [], interpretation: "", feedback: "",
   accuracy: "待验证", score: 0, tags: [], reviewed: false, reviewNote: "",
+  spreadPhotoUrl: "",
 });
 
-function CaseForm({ init, cards, onSave, onClose }) {
+function SpreadPhotoLightbox({ url, onClose }) {
+  if (!url) return null;
+  return (
+    <div className="overlay" onClick={onClose} style={{ zIndex: 200 }}>
+      <img src={url} alt="牌阵照片" onClick={e => e.stopPropagation()}
+        style={{ maxWidth: "92vw", maxHeight: "88vh", borderRadius: 8, objectFit: "contain" }} />
+    </div>
+  );
+}
+
+function CaseForm({ init, cards, user, onSave, onClose }) {
   const [f, setF] = useState(init || newCase());
+  const [pendingFile, setPendingFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [removePhoto, setRemovePhoto] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef(null);
   const s = (k) => (e) => setF(p => ({ ...p, [k]: e.target.value }));
   const set = (k, v) => setF(p => ({ ...p, [k]: v }));
   const valid = f.clientCode.trim() && f.date;
+
+  useEffect(() => {
+    if (!f.spreadPhotoUrl || pendingFile || removePhoto) return;
+    let cancelled = false;
+    getSpreadPhotoUrl(f.spreadPhotoUrl).then(url => {
+      if (!cancelled && url) setPreviewUrl(url);
+    });
+    return () => { cancelled = true; };
+  }, [f.spreadPhotoUrl, pendingFile, removePhoto]);
+
+  useEffect(() => () => {
+    if (pendingFile && previewUrl?.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
+  }, [pendingFile, previewUrl]);
+
+  const pickFile = (file) => {
+    if (!file) return;
+    if (previewUrl?.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
+    setPendingFile(file);
+    setPreviewUrl(URL.createObjectURL(file));
+    setRemovePhoto(false);
+  };
+
+  const clearPhoto = () => {
+    if (previewUrl?.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
+    setPendingFile(null);
+    setPreviewUrl(null);
+    setRemovePhoto(true);
+  };
+
+  const handleSave = async () => {
+    if (!valid || uploading) return;
+    setUploading(true);
+    try {
+      let spreadPhotoUrl = f.spreadPhotoUrl;
+      if (removePhoto) {
+        if (f.spreadPhotoUrl) await deleteSpreadPhoto(f.spreadPhotoUrl);
+        spreadPhotoUrl = "";
+      } else if (pendingFile) {
+        if (f.spreadPhotoUrl) await deleteSpreadPhoto(f.spreadPhotoUrl);
+        spreadPhotoUrl = await uploadSpreadPhoto(pendingFile, user.id, f.id);
+      }
+      onSave({ ...f, spreadPhotoUrl });
+    } catch (e) {
+      alert(e.message || "照片上传失败，请重试");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
     <div className="overlay" onClick={onClose}>
       <div className="modal modal-wide" onClick={e => e.stopPropagation()}>
@@ -1165,6 +1233,28 @@ function CaseForm({ init, cards, onSave, onClose }) {
               <label className="fl">使用牌阵</label>
               <input className="fi" value={f.spread} onChange={s("spread")} placeholder="例：三张牌阵" />
             </div>
+          </div>
+          <div className="fg">
+            <label className="fl">牌阵照片</label>
+            <input ref={fileRef} type="file" accept="image/*" capture="environment" style={{ display: "none" }}
+              onChange={e => pickFile(e.target.files?.[0])} />
+            {previewUrl ? (
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                <img src={previewUrl} alt="牌阵预览"
+                  style={{ width: 120, height: 120, objectFit: "cover", borderRadius: 8, border: "1px solid var(--border)", cursor: "pointer" }}
+                  onClick={() => window.open(previewUrl, "_blank")} />
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={() => fileRef.current?.click()}>更换照片</button>
+                  <button type="button" className="btn btn-danger btn-sm" onClick={clearPhoto}>删除照片</button>
+                </div>
+              </div>
+            ) : (
+              <button type="button" className="btn btn-ghost btn-sm"
+                style={{ border: "1px dashed var(--border)", padding: "16px 20px", width: "100%" }}
+                onClick={() => fileRef.current?.click()}>
+                + 上传牌阵照片
+              </button>
+            )}
           </div>
           <div className="fg">
             <label className="fl">使用的牌（可多选）</label>
@@ -1202,8 +1292,10 @@ function CaseForm({ init, cards, onSave, onClose }) {
           </label>
         </div>
         <div className="mfoot">
-          <button className="btn btn-ghost" onClick={onClose}>取消</button>
-          <button className="btn btn-gold" onClick={() => valid && onSave(f)} disabled={!valid}>保存</button>
+          <button className="btn btn-ghost" onClick={onClose} disabled={uploading}>取消</button>
+          <button className="btn btn-gold" onClick={handleSave} disabled={!valid || uploading}>
+            {uploading ? "上传中..." : "保存"}
+          </button>
         </div>
       </div>
     </div>
@@ -1534,11 +1626,25 @@ function Daily({ cards, draws, setDraws }) {
 // ═══════════════════════════════════════════════════════════════
 // PAGE: CASES
 // ═══════════════════════════════════════════════════════════════
-function Cases({ cards, cases, setCases }) {
+function Cases({ cards, cases, setCases, user }) {
   const [form, setForm] = useState(null);
   const [del, setDel] = useState(null);
   const [qtFilt, setQtFilt] = useState("全部");
   const [accFilt, setAccFilt] = useState("全部");
+  const [photoUrls, setPhotoUrls] = useState({});
+  const [lightboxUrl, setLightboxUrl] = useState(null);
+
+  useEffect(() => {
+    const paths = cases.map(c => c.spreadPhotoUrl).filter(Boolean);
+    if (!paths.length) { setPhotoUrls({}); return; }
+    getSpreadPhotoUrls(paths).then(urlMap => {
+      const byCase = {};
+      cases.forEach(c => {
+        if (c.spreadPhotoUrl && urlMap[c.spreadPhotoUrl]) byCase[c.id] = urlMap[c.spreadPhotoUrl];
+      });
+      setPhotoUrls(byCase);
+    });
+  }, [cases]);
 
   const shown = useMemo(() => cases.filter(c => {
     const mq = qtFilt === "全部" || c.qType === qtFilt;
@@ -1550,7 +1656,12 @@ function Cases({ cards, cases, setCases }) {
     setCases(prev => form === "new" ? [f, ...prev] : prev.map(c => c.id === f.id ? f : c));
     setForm(null);
   };
-  const doDelete = (id) => { setCases(prev => prev.filter(c => c.id !== id)); setDel(null); };
+  const doDelete = async (id) => {
+    const c = cases.find(x => x.id === id);
+    if (c?.spreadPhotoUrl) await deleteSpreadPhoto(c.spreadPhotoUrl);
+    setCases(prev => prev.filter(c => c.id !== id));
+    setDel(null);
+  };
 
   return (
     <div className="page">
@@ -1589,6 +1700,11 @@ function Cases({ cards, cases, setCases }) {
                   {cCards.map(x => <span key={x.id} className="tag tag-gold">{x.name}</span>)}
                 </div>
               )}
+              {photoUrls[c.id] && (
+                <img src={photoUrls[c.id]} alt="牌阵"
+                  onClick={() => setLightboxUrl(photoUrls[c.id])}
+                  style={{ width: 48, height: 48, objectFit: "cover", borderRadius: 6, border: "1px solid var(--border)", cursor: "pointer", marginBottom: 4 }} />
+              )}
               {c.score > 0 && <Stars value={c.score} readOnly />}
               {(c.tags || []).length > 0 && <div style={{ marginTop: 6 }}><TagList tags={c.tags} /></div>}
             </div>
@@ -1599,8 +1715,9 @@ function Cases({ cards, cases, setCases }) {
           </div>
         );
       })}
-      {form && <CaseForm init={form === "new" ? undefined : form} cards={cards} onSave={save} onClose={() => setForm(null)} />}
+      {form && <CaseForm init={form === "new" ? undefined : form} cards={cards} user={user} onSave={save} onClose={() => setForm(null)} />}
       {del && <Confirm msg="确认删除这个案例？" onOk={() => doDelete(del)} onCancel={() => setDel(null)} />}
+      {lightboxUrl && <SpreadPhotoLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />}
     </div>
   );
 }
@@ -1950,7 +2067,7 @@ function AppShell({ cards, draws, cases, setCards, setDraws, setCases, user, sig
     + cases.filter(c => !c.reviewed && c.accuracy === "待验证").length;
 
   const pageTitle = NAVS.find(n => n.id === page)?.label || "";
-  const props = { cards, draws, cases, setCards, setDraws, setCases, goTo };
+  const props = { cards, draws, cases, setCards, setDraws, setCases, goTo, user };
   const email = user?.email || "";
   const shortEmail = email.length > 22 ? email.slice(0, 20) + "…" : email;
 
