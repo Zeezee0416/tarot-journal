@@ -77,7 +77,22 @@ export function drawToDb(draw, userId) {
   return base;
 }
 
+function normalizeSpreadCards(row) {
+  const spreadCards = row.spread_cards || [];
+  if (spreadCards.length > 0) return spreadCards;
+  const cardIds = row.card_ids || [];
+  return cardIds.map((cardId, i) => ({
+    slot: `牌${i + 1}`,
+    cardId,
+    orientation: '正位',
+  }));
+}
+
 export function rowToCase(row) {
+  const spreadCards = normalizeSpreadCards(row);
+  const cardIds = spreadCards.length
+    ? spreadCards.map(s => s.cardId).filter(Boolean)
+    : (row.card_ids || []);
   return {
     id: row.id,
     clientCode: row.client_code || '',
@@ -85,7 +100,8 @@ export function rowToCase(row) {
     theme: row.theme || '',
     qType: row.q_type || '感情',
     spread: row.spread || '',
-    cardIds: row.card_ids || [],
+    spreadCards,
+    cardIds,
     interpretation: row.interpretation || '',
     feedback: row.feedback || '',
     accuracy: row.accuracy || '待验证',
@@ -93,11 +109,14 @@ export function rowToCase(row) {
     tags: row.tags || [],
     reviewed: row.reviewed || false,
     reviewNote: row.review_note || '',
-    spreadPhotoUrl: row.spread_photo_url || '',
   };
 }
 
 export function caseToDb(c, userId) {
+  const spreadCards = c.spreadCards || [];
+  const cardIds = spreadCards.length
+    ? spreadCards.map(s => s.cardId).filter(Boolean)
+    : (c.cardIds || []);
   return {
     user_id: userId,
     client_code: c.clientCode || '',
@@ -105,7 +124,8 @@ export function caseToDb(c, userId) {
     theme: c.theme || '',
     q_type: c.qType || '感情',
     spread: c.spread || '',
-    card_ids: c.cardIds || [],
+    spread_cards: spreadCards,
+    card_ids: cardIds,
     interpretation: c.interpretation || '',
     feedback: c.feedback || '',
     accuracy: c.accuracy || '待验证',
@@ -113,7 +133,6 @@ export function caseToDb(c, userId) {
     tags: c.tags || [],
     reviewed: c.reviewed || false,
     review_note: c.reviewNote || '',
-    spread_photo_url: c.spreadPhotoUrl || '',
     updated_at: new Date().toISOString(),
   };
 }

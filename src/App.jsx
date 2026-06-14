@@ -1,10 +1,10 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useAuth } from './context/AuthContext.jsx';
 import { useTarotData } from './hooks/useTarotData.js';
 import AuthPage from './pages/AuthPage.jsx';
 import {
-  uploadSpreadPhoto, deleteSpreadPhoto, getSpreadPhotoUrl, getSpreadPhotoUrls,
-} from './lib/uploadSpreadPhoto.js';
+  SPREAD_TEMPLATES, skeletonFromTemplate, detectTemplateId, mergeSpreadCards,
+} from './data/spreadTemplates.js';
 
 // ═══════════════════════════════════════════════════════════════
 // GLOBAL STYLES
@@ -791,6 +791,109 @@ function CardPicker({ cards, selected = [], onChange }) {
   );
 }
 
+function SpreadSlotEditor({ slot, cards, onChange, imgW = 48, imgH = 72 }) {
+  const card = cards.find(c => c.id === slot.cardId);
+  return (
+    <div style={{ background: "var(--deep)", border: "1px solid var(--border)", borderRadius: 8, padding: 10, minWidth: 118, flex: "1 1 118px" }}>
+      <input className="fi" style={{ fontSize: 12, marginBottom: 6, padding: "4px 8px" }}
+        value={slot.slot} onChange={e => onChange({ slot: e.target.value })} placeholder="位置名" />
+      <select className="fs" style={{ fontSize: 12, marginBottom: 6, width: "100%" }}
+        value={slot.cardId} onChange={e => onChange({ cardId: e.target.value })}>
+        <option value="">选择牌...</option>
+        {cards.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+      </select>
+      <select className="fs" style={{ fontSize: 11, marginBottom: 6, width: "100%" }}
+        value={slot.orientation} onChange={e => onChange({ orientation: e.target.value })}>
+        <option>正位</option><option>逆位</option>
+      </select>
+      {card ? <CardImage card={card} style={{ width: imgW, height: imgH }} /> : (
+        <div style={{ width: imgW, height: imgH, borderRadius: 6, background: "var(--surface)", border: "1px dashed var(--border)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "var(--text-3)" }}>未选牌</div>
+      )}
+    </div>
+  );
+}
+
+function SpreadBuilder({ cards, spreadCards, onChange, templateId, onTemplateChange, customCount, onCustomCountChange }) {
+  const updateSlot = (i, patch) => {
+    onChange(spreadCards.map((s, j) => j === i ? { ...s, ...patch } : s));
+  };
+  const renderSlot = (i) => {
+    const slot = spreadCards[i];
+    if (!slot) return null;
+    return <SpreadSlotEditor key={i} slot={slot} cards={cards} onChange={patch => updateSlot(i, patch)} />;
+  };
+
+  return (
+    <div>
+      <select className="fs" value={templateId} onChange={e => onTemplateChange(e.target.value)} style={{ marginBottom: 12, width: "100%" }}>
+        {SPREAD_TEMPLATES.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+      </select>
+      {templateId === "custom" && (
+        <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 12, flexWrap: "wrap" }}>
+          <span style={{ fontSize: 13, color: "var(--text-2)" }}>格数 {customCount}</span>
+          <button type="button" className="btn btn-ghost btn-sm" disabled={customCount >= 10}
+            onClick={() => onCustomCountChange(customCount + 1)}>+ 增加一格</button>
+          <button type="button" className="btn btn-ghost btn-sm" disabled={customCount <= 2}
+            onClick={() => onCustomCountChange(customCount - 1)}>- 删除末格</button>
+        </div>
+      )}
+      {templateId === "cross-5" ? (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, maxWidth: 420 }}>
+          <div /><div>{renderSlot(1)}</div><div />
+          <div>{renderSlot(2)}</div><div>{renderSlot(0)}</div><div>{renderSlot(3)}</div>
+          <div /><div>{renderSlot(4)}</div><div />
+        </div>
+      ) : (
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>{spreadCards.map((_, i) => renderSlot(i))}</div>
+      )}
+    </div>
+  );
+}
+
+function SpreadView({ cards, spreadCards, compact = false, expandable = false, templateId }) {
+  const [expanded, setExpanded] = useState(null);
+  if (!spreadCards?.length) return null;
+  const imgW = compact ? 36 : 48;
+  const imgH = compact ? 54 : 72;
+  const tid = templateId || detectTemplateId(spreadCards);
+
+  const renderReadSlot = (i) => {
+    const slot = spreadCards[i];
+    if (!slot) return null;
+    const card = cards.find(c => c.id === slot.cardId);
+    const isExp = expandable && expanded === i;
+    return (
+      <div key={i} style={{ textAlign: "center", minWidth: compact ? 72 : 90, cursor: expandable && card ? "pointer" : "default" }}
+        onClick={() => expandable && card && setExpanded(isExp ? null : i)}>
+        <div style={{ fontSize: compact ? 10 : 11, color: "var(--text-2)", marginBottom: 4 }}>{slot.slot}</div>
+        {card ? <CardImage card={card} style={{ width: imgW, height: imgH, margin: "0 auto" }} /> : (
+          <div style={{ width: imgW, height: imgH, margin: "0 auto", borderRadius: 6, background: "var(--surface)", border: "1px dashed var(--border)" }} />
+        )}
+        {slot.cardId && (
+          <div style={{ fontSize: compact ? 10 : 11, marginTop: 4 }}>
+            <span className={`ori ${slot.orientation === "正位" ? "ori-up" : "ori-rv"}`}>{slot.orientation}</span>
+          </div>
+        )}
+        {isExp && card && <CardMeaningPanel card={card} orientation={slot.orientation} />}
+      </div>
+    );
+  };
+
+  const layout = (
+    tid === "cross-5" ? (
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: compact ? 6 : 8, maxWidth: compact ? 280 : 360 }}>
+        <div /><div>{renderReadSlot(1)}</div><div />
+        <div>{renderReadSlot(2)}</div><div>{renderReadSlot(0)}</div><div>{renderReadSlot(3)}</div>
+        <div /><div>{renderReadSlot(4)}</div><div />
+      </div>
+    ) : (
+      <div style={{ display: "flex", gap: compact ? 8 : 10, flexWrap: "wrap" }}>{spreadCards.map((_, i) => renderReadSlot(i))}</div>
+    )
+  );
+
+  return <div style={{ marginTop: compact ? 4 : 8, marginBottom: compact ? 4 : 8 }}>{layout}</div>;
+}
+
 function Confirm({ msg, onOk, onCancel }) {
   return (
     <div className="overlay" onClick={onCancel}>
@@ -1126,78 +1229,50 @@ function DrawForm({ init, cards, onSave, onClose }) {
 // ═══════════════════════════════════════════════════════════════
 const newCase = () => ({
   id: uid(), clientCode: "", date: today(), theme: "", qType: "感情",
-  spread: "", cardIds: [], interpretation: "", feedback: "",
+  spread: "三张牌阵", spreadCards: skeletonFromTemplate("three-ppp"),
+  cardIds: [], interpretation: "", feedback: "",
   accuracy: "待验证", score: 0, tags: [], reviewed: false, reviewNote: "",
-  spreadPhotoUrl: "",
 });
 
-function SpreadPhotoLightbox({ url, onClose }) {
-  if (!url) return null;
-  return (
-    <div className="overlay" onClick={onClose} style={{ zIndex: 200 }}>
-      <img src={url} alt="牌阵照片" onClick={e => e.stopPropagation()}
-        style={{ maxWidth: "92vw", maxHeight: "88vh", borderRadius: 8, objectFit: "contain" }} />
-    </div>
-  );
-}
-
-function CaseForm({ init, cards, user, onSave, onClose }) {
-  const [f, setF] = useState(init || newCase());
-  const [pendingFile, setPendingFile] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(null);
-  const [removePhoto, setRemovePhoto] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const fileRef = useRef(null);
+function CaseForm({ init, cards, onSave, onClose }) {
+  const [f, setF] = useState(() => {
+    const base = init ? { ...init } : newCase();
+    if (!base.spreadCards?.length) {
+      base.spreadCards = base.cardIds?.length
+        ? base.cardIds.map((id, i) => ({ slot: `牌${i + 1}`, cardId: id, orientation: "正位" }))
+        : skeletonFromTemplate("three-ppp");
+    }
+    if (!base.spread) base.spread = detectTemplateId(base.spreadCards) === "custom" ? "自定义" : (SPREAD_TEMPLATES.find(t => t.id === detectTemplateId(base.spreadCards))?.name || "三张牌阵");
+    return base;
+  });
+  const [templateId, setTemplateId] = useState(() => detectTemplateId(f.spreadCards));
+  const [customCount, setCustomCount] = useState(f.spreadCards.length || 3);
   const s = (k) => (e) => setF(p => ({ ...p, [k]: e.target.value }));
   const set = (k, v) => setF(p => ({ ...p, [k]: v }));
   const valid = f.clientCode.trim() && f.date;
 
-  useEffect(() => {
-    if (!f.spreadPhotoUrl || pendingFile || removePhoto) return;
-    let cancelled = false;
-    getSpreadPhotoUrl(f.spreadPhotoUrl).then(url => {
-      if (!cancelled && url) setPreviewUrl(url);
-    });
-    return () => { cancelled = true; };
-  }, [f.spreadPhotoUrl, pendingFile, removePhoto]);
-
-  useEffect(() => () => {
-    if (pendingFile && previewUrl?.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
-  }, [pendingFile, previewUrl]);
-
-  const pickFile = (file) => {
-    if (!file) return;
-    if (previewUrl?.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
-    setPendingFile(file);
-    setPreviewUrl(URL.createObjectURL(file));
-    setRemovePhoto(false);
+  const applyTemplate = (id, count = customCount) => {
+    const tpl = SPREAD_TEMPLATES.find(t => t.id === id);
+    const skeleton = skeletonFromTemplate(id, count);
+    const merged = mergeSpreadCards(f.spreadCards, skeleton);
+    setF(p => ({
+      ...p,
+      spread: tpl?.name || p.spread,
+      spreadCards: merged,
+      cardIds: merged.map(x => x.cardId).filter(Boolean),
+    }));
+    setTemplateId(id);
+    if (id === "custom") setCustomCount(merged.length);
   };
 
-  const clearPhoto = () => {
-    if (previewUrl?.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
-    setPendingFile(null);
-    setPreviewUrl(null);
-    setRemovePhoto(true);
+  const handleSpreadCardsChange = (spreadCards) => {
+    setF(p => ({ ...p, spreadCards, cardIds: spreadCards.map(s => s.cardId).filter(Boolean) }));
   };
 
-  const handleSave = async () => {
-    if (!valid || uploading) return;
-    setUploading(true);
-    try {
-      let spreadPhotoUrl = f.spreadPhotoUrl;
-      if (removePhoto) {
-        if (f.spreadPhotoUrl) await deleteSpreadPhoto(f.spreadPhotoUrl);
-        spreadPhotoUrl = "";
-      } else if (pendingFile) {
-        if (f.spreadPhotoUrl) await deleteSpreadPhoto(f.spreadPhotoUrl);
-        spreadPhotoUrl = await uploadSpreadPhoto(pendingFile, user.id, f.id);
-      }
-      onSave({ ...f, spreadPhotoUrl });
-    } catch (e) {
-      alert(e.message || "照片上传失败，请重试");
-    } finally {
-      setUploading(false);
-    }
+  const handleCustomCountChange = (n) => {
+    const count = Math.min(10, Math.max(2, n));
+    setCustomCount(count);
+    applyTemplate("custom", count);
   };
 
   return (
@@ -1230,35 +1305,21 @@ function CaseForm({ init, cards, user, onSave, onClose }) {
               <input className="fi" value={f.theme} onChange={s("theme")} placeholder="例：前任是否会回头" />
             </div>
             <div className="fg" style={{ marginBottom: 0 }}>
-              <label className="fl">使用牌阵</label>
+              <label className="fl">牌阵名称</label>
               <input className="fi" value={f.spread} onChange={s("spread")} placeholder="例：三张牌阵" />
             </div>
           </div>
           <div className="fg">
-            <label className="fl">牌阵照片</label>
-            <input ref={fileRef} type="file" accept="image/*" capture="environment" style={{ display: "none" }}
-              onChange={e => pickFile(e.target.files?.[0])} />
-            {previewUrl ? (
-              <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-                <img src={previewUrl} alt="牌阵预览"
-                  style={{ width: 120, height: 120, objectFit: "cover", borderRadius: 8, border: "1px solid var(--border)", cursor: "pointer" }}
-                  onClick={() => window.open(previewUrl, "_blank")} />
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  <button type="button" className="btn btn-ghost btn-sm" onClick={() => fileRef.current?.click()}>更换照片</button>
-                  <button type="button" className="btn btn-danger btn-sm" onClick={clearPhoto}>删除照片</button>
-                </div>
-              </div>
-            ) : (
-              <button type="button" className="btn btn-ghost btn-sm"
-                style={{ border: "1px dashed var(--border)", padding: "16px 20px", width: "100%" }}
-                onClick={() => fileRef.current?.click()}>
-                + 上传牌阵照片
-              </button>
-            )}
-          </div>
-          <div className="fg">
-            <label className="fl">使用的牌（可多选）</label>
-            <CardPicker cards={cards} selected={f.cardIds} onChange={v => set("cardIds", v)} />
+            <label className="fl">牌阵布局</label>
+            <SpreadBuilder
+              cards={cards}
+              spreadCards={f.spreadCards}
+              onChange={handleSpreadCardsChange}
+              templateId={templateId}
+              onTemplateChange={applyTemplate}
+              customCount={customCount}
+              onCustomCountChange={handleCustomCountChange}
+            />
           </div>
           <div className="fg">
             <label className="fl">当时解读</label>
@@ -1292,10 +1353,8 @@ function CaseForm({ init, cards, user, onSave, onClose }) {
           </label>
         </div>
         <div className="mfoot">
-          <button className="btn btn-ghost" onClick={onClose} disabled={uploading}>取消</button>
-          <button className="btn btn-gold" onClick={handleSave} disabled={!valid || uploading}>
-            {uploading ? "上传中..." : "保存"}
-          </button>
+          <button className="btn btn-ghost" onClick={onClose}>取消</button>
+          <button className="btn btn-gold" onClick={() => valid && onSave(f)} disabled={!valid}>保存</button>
         </div>
       </div>
     </div>
@@ -1331,7 +1390,11 @@ function ReviewModal({ item, type, cards, onSave, onClose }) {
               <>
                 <div style={{ fontFamily: "Cinzel, serif", color: "var(--gold-bright)", marginBottom: 6, fontSize: 14 }}>
                   {f.clientCode} <span className="tag tag-amethyst">{f.qType}</span>
+                  {f.spread && <span className="tag tag-gray" style={{ marginLeft: 6 }}>{f.spread}</span>}
                 </div>
+                {f.spreadCards?.length > 0 && (
+                  <SpreadView cards={cards} spreadCards={f.spreadCards} expandable templateId={detectTemplateId(f.spreadCards)} />
+                )}
                 {f.theme && <p style={{ fontSize: 16, color: "var(--text-2)" }}>主题：{f.theme}</p>}
                 {f.interpretation && <p style={{ fontSize: 16, color: "var(--text-2)", marginTop: 4 }}>解读：{f.interpretation}</p>}
               </>
@@ -1626,25 +1689,11 @@ function Daily({ cards, draws, setDraws }) {
 // ═══════════════════════════════════════════════════════════════
 // PAGE: CASES
 // ═══════════════════════════════════════════════════════════════
-function Cases({ cards, cases, setCases, user }) {
+function Cases({ cards, cases, setCases }) {
   const [form, setForm] = useState(null);
   const [del, setDel] = useState(null);
   const [qtFilt, setQtFilt] = useState("全部");
   const [accFilt, setAccFilt] = useState("全部");
-  const [photoUrls, setPhotoUrls] = useState({});
-  const [lightboxUrl, setLightboxUrl] = useState(null);
-
-  useEffect(() => {
-    const paths = cases.map(c => c.spreadPhotoUrl).filter(Boolean);
-    if (!paths.length) { setPhotoUrls({}); return; }
-    getSpreadPhotoUrls(paths).then(urlMap => {
-      const byCase = {};
-      cases.forEach(c => {
-        if (c.spreadPhotoUrl && urlMap[c.spreadPhotoUrl]) byCase[c.id] = urlMap[c.spreadPhotoUrl];
-      });
-      setPhotoUrls(byCase);
-    });
-  }, [cases]);
 
   const shown = useMemo(() => cases.filter(c => {
     const mq = qtFilt === "全部" || c.qType === qtFilt;
@@ -1656,9 +1705,7 @@ function Cases({ cards, cases, setCases, user }) {
     setCases(prev => form === "new" ? [f, ...prev] : prev.map(c => c.id === f.id ? f : c));
     setForm(null);
   };
-  const doDelete = async (id) => {
-    const c = cases.find(x => x.id === id);
-    if (c?.spreadPhotoUrl) await deleteSpreadPhoto(c.spreadPhotoUrl);
+  const doDelete = (id) => {
     setCases(prev => prev.filter(c => c.id !== id));
     setDel(null);
   };
@@ -1680,9 +1727,7 @@ function Cases({ cards, cases, setCases, user }) {
           <div className="empty-title">暂无案例记录</div>
           <div className="empty-body">记录客户咨询案例，追踪准确度，提升解牌能力</div>
         </div>
-      ) : shown.map(c => {
-        const cCards = (c.cardIds || []).map(id => cards.find(x => x.id === id)).filter(Boolean);
-        return (
+      ) : shown.map(c => (
           <div key={c.id} className="list-row">
             <div style={{ width: 42, height: 42, borderRadius: 8, background: "var(--gold-bg)", border: "1px solid var(--border-gold)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Cinzel, serif", fontSize: 13, color: "var(--gold)", flexShrink: 0 }}>
               {c.clientCode.slice(0, 2)}
@@ -1695,15 +1740,8 @@ function Cases({ cards, cases, setCases, user }) {
                 {c.reviewed && <span className="tag tag-green">已复盘</span>}
               </div>
               <div style={{ fontSize: 14, color: "var(--text-2)", marginBottom: 4 }}>{c.date}{c.theme ? " · " + c.theme : ""}{c.spread ? " · " + c.spread : ""}</div>
-              {cCards.length > 0 && (
-                <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginBottom: 4 }}>
-                  {cCards.map(x => <span key={x.id} className="tag tag-gold">{x.name}</span>)}
-                </div>
-              )}
-              {photoUrls[c.id] && (
-                <img src={photoUrls[c.id]} alt="牌阵"
-                  onClick={() => setLightboxUrl(photoUrls[c.id])}
-                  style={{ width: 48, height: 48, objectFit: "cover", borderRadius: 6, border: "1px solid var(--border)", cursor: "pointer", marginBottom: 4 }} />
+              {c.spreadCards?.length > 0 && (
+                <SpreadView cards={cards} spreadCards={c.spreadCards} compact templateId={detectTemplateId(c.spreadCards)} />
               )}
               {c.score > 0 && <Stars value={c.score} readOnly />}
               {(c.tags || []).length > 0 && <div style={{ marginTop: 6 }}><TagList tags={c.tags} /></div>}
@@ -1713,11 +1751,9 @@ function Cases({ cards, cases, setCases, user }) {
               <button className="btn btn-danger btn-sm" onClick={() => setDel(c.id)}>删除</button>
             </div>
           </div>
-        );
-      })}
-      {form && <CaseForm init={form === "new" ? undefined : form} cards={cards} user={user} onSave={save} onClose={() => setForm(null)} />}
+        ))}
+      {form && <CaseForm init={form === "new" ? undefined : form} cards={cards} onSave={save} onClose={() => setForm(null)} />}
       {del && <Confirm msg="确认删除这个案例？" onOk={() => doDelete(del)} onCancel={() => setDel(null)} />}
-      {lightboxUrl && <SpreadPhotoLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />}
     </div>
   );
 }
@@ -1770,7 +1806,10 @@ function Review({ cards, draws, setDraws, cases, setCases }) {
           <span className="tag tag-amethyst">{c.qType}</span>
           <span className={`accuracy-badge ${ACC_CLS[c.accuracy]}`}>{c.accuracy}</span>
         </div>
-        <div style={{ fontSize: 14, color: "var(--text-2)" }}>{c.date}{c.theme ? " · " + c.theme : ""}</div>
+        <div style={{ fontSize: 14, color: "var(--text-2)" }}>{c.date}{c.theme ? " · " + c.theme : ""}{c.spread ? " · " + c.spread : ""}</div>
+        {c.spreadCards?.length > 0 && (
+          <SpreadView cards={cards} spreadCards={c.spreadCards} compact templateId={detectTemplateId(c.spreadCards)} />
+        )}
         {c.reviewed && c.score > 0 && <div style={{ marginTop: 4 }}><Stars value={c.score} readOnly /></div>}
       </div>
       <button className="btn btn-ghost btn-sm" onClick={() => setRev({ item: c, type: "case" })}>{c.reviewed ? "查看" : "复盘"}</button>
@@ -1912,7 +1951,10 @@ function Search({ cards, draws, cases, initialQuery = "" }) {
                     <span style={{ fontFamily: "Cinzel, serif", color: "var(--gold-bright)", fontSize: 13 }}>{c.clientCode}</span>
                     <span className="tag tag-amethyst">{c.qType}</span>
                   </div>
-                  <div style={{ fontSize: 14, color: "var(--text-2)" }}>{c.date}{c.theme ? " · " + c.theme : ""}</div>
+                  <div style={{ fontSize: 14, color: "var(--text-2)" }}>{c.date}{c.theme ? " · " + c.theme : ""}{c.spread ? " · " + c.spread : ""}</div>
+                  {c.spreadCards?.length > 0 && (
+                    <SpreadView cards={cards} spreadCards={c.spreadCards} compact templateId={detectTemplateId(c.spreadCards)} />
+                  )}
                 </div>
                 <span className={`accuracy-badge ${ACC_CLS[c.accuracy]}`}>{c.accuracy}</span>
               </div>
@@ -2067,7 +2109,7 @@ function AppShell({ cards, draws, cases, setCards, setDraws, setCases, user, sig
     + cases.filter(c => !c.reviewed && c.accuracy === "待验证").length;
 
   const pageTitle = NAVS.find(n => n.id === page)?.label || "";
-  const props = { cards, draws, cases, setCards, setDraws, setCases, goTo, user };
+  const props = { cards, draws, cases, setCards, setDraws, setCases, goTo };
   const email = user?.email || "";
   const shortEmail = email.length > 22 ? email.slice(0, 20) + "…" : email;
 
